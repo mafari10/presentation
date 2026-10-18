@@ -1,0 +1,689 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Cyberpesten Speech Trainer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap">
+<style>
+/* Layout: one narrow column. Three coloured parts (P, E, N) match the three beats of the speech, so colour tells you where you are. Tabs: Speech, Cards, Practice. */
+:root {
+  --bg: #f2f6f8;
+  --surface: #ffffff;
+  --ink: #0e1d2c;
+  --muted: #556575;
+  --line: #d6e0e7;
+  --line-strong: #9fb1bf;
+  --gap: #e1eaf0;
+  --p: #08788c;
+  --p-tint: #d7f0f4;
+  --e: #b8294e;
+  --e-tint: #fbe1e8;
+  --n: #8a5800;
+  --n-tint: #fbeecb;
+  --on-c: #ffffff;
+  --display: 'Bricolage Grotesque', ui-rounded, 'Segoe UI', system-ui, sans-serif;
+  --body: 'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1622;
+    --surface: #122238;
+    --ink: #e9f0f6;
+    --muted: #9db0c1;
+    --line: #26394f;
+    --line-strong: #4d6479;
+    --gap: #1d3149;
+    --p: #52d3ea;
+    --p-tint: #10343f;
+    --e: #ff829f;
+    --e-tint: #3b1a27;
+    --n: #f5c352;
+    --n-tint: #38300f;
+    --on-c: #0b1622;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1622;
+  --surface: #122238;
+  --ink: #e9f0f6;
+  --muted: #9db0c1;
+  --line: #26394f;
+  --line-strong: #4d6479;
+  --gap: #1d3149;
+  --p: #52d3ea;
+  --p-tint: #10343f;
+  --e: #ff829f;
+  --e-tint: #3b1a27;
+  --n: #f5c352;
+  --n-tint: #38300f;
+  --on-c: #0b1622;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 56px;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--bg);
+  z-index: 10;
+}
+.wrap { max-width: 720px; margin: 0 auto; }
+button { font-family: inherit; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+.p { --c: var(--p); --ct: var(--p-tint); }
+.e { --c: var(--e); --ct: var(--e-tint); }
+.n { --c: var(--n); --ct: var(--n-tint); }
+
+/* Header */
+.eyebrow { margin: 0 0 6px; font-size: 0.8125rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+h1 { margin: 0; font: 800 clamp(1.75rem, 7vw, 2.5rem)/1.1 var(--display); text-wrap: balance; }
+.lede { margin: 10px 0 0; color: var(--muted); max-width: 52ch; }
+
+/* Method strip */
+.method { margin-top: 22px; }
+.method > p { margin: 0 0 12px; max-width: 60ch; }
+.pen { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.pen div { background: var(--ct); border-radius: 14px; padding: 12px 14px; display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; align-items: center; min-width: 0; }
+.pen b { grid-row: span 2; width: 40px; height: 40px; border-radius: 10px; background: var(--c); color: var(--on-c); display: grid; place-items: center; font: 800 1.5rem var(--display); }
+.pen strong { font-size: 1.0625rem; }
+.pen span { font-size: 0.875rem; color: var(--muted); }
+
+/* Tabs */
+.tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; display: flex; background: var(--bg); border-bottom: 1px solid var(--line); margin: 26px 0 18px; }
+.tabs button { flex: 1; border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--muted); padding: 12px 6px 10px; font-size: 1rem; font-weight: 700; cursor: pointer; min-height: 48px; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* Controls */
+.tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin-bottom: 14px; }
+.seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 999px; padding: 2px; max-width: 100%; }
+.seg button { border: 0; background: transparent; color: var(--ink); padding: 6px 12px; border-radius: 999px; min-height: 38px; cursor: pointer; font-size: 0.9375rem; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); font-weight: 700; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--ink); color: var(--bg); border: 0; border-radius: 999px; padding: 10px 18px; font-weight: 700; font-size: 1rem; min-height: 44px; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line-strong); }
+.btn.small { min-height: 38px; padding: 6px 14px; font-size: 0.9375rem; }
+.btn[hidden] { display: none; }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.tog { border: 1px solid var(--line-strong); background: transparent; color: var(--ink); border-radius: 999px; min-height: 38px; padding: 6px 14px; cursor: pointer; font-size: 0.9375rem; }
+.tog[aria-pressed="true"] { background: var(--ink); color: var(--bg); font-weight: 700; }
+.note { margin: 0 0 14px; padding: 10px 14px; border-radius: 12px; background: var(--n-tint); font-size: 0.9375rem; }
+.note[hidden] { display: none; }
+.hint { color: var(--muted); font-size: 0.9375rem; margin: 0 0 12px; }
+
+/* Speech parts */
+.part { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-bottom: 16px; }
+.part-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 14px 16px; background: var(--ct); }
+.letter { width: 52px; height: 52px; border-radius: 12px; background: var(--c); color: var(--on-c); display: grid; place-items: center; font: 800 2rem var(--display); }
+.part-head h2 { margin: 0; font: 800 1.375rem/1.15 var(--display); }
+.part-head .sub { margin: 0; color: var(--muted); font-size: 0.9375rem; }
+.cue { margin: 0; padding: 10px 16px; font-size: 0.9375rem; color: var(--muted); }
+.cue strong { color: var(--ink); }
+.line { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; width: 100%; text-align: left; background: none; border: 0; border-top: 1px solid var(--line); padding: 14px 16px; color: var(--ink); font-size: 1rem; cursor: pointer; }
+.line.now { background: var(--ct); }
+.line .nl { font-size: 1.1875rem; font-weight: 700; line-height: 1.35; grid-column: 1; }
+.line .en { color: var(--muted); grid-column: 1; }
+.line .spk { grid-column: 2; grid-row: 1 / span 2; align-self: center; color: var(--muted); }
+[data-lang="nl"] .en { display: none; }
+[data-lang="en"] .nl { display: none; }
+[data-lang="en"] .line .en { color: var(--ink); font-size: 1.125rem; }
+.line .nl, .line .en { min-width: 0; overflow-wrap: anywhere; }
+
+/* Cards */
+.progress { display: flex; align-items: center; gap: 12px; margin: 14px 0; font-size: 0.9375rem; color: var(--muted); }
+.bar { flex: 1; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--ink); }
+.card { width: 100%; min-height: 270px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 20px; padding: 24px 20px; text-align: left; color: var(--ink); font-size: 1rem; cursor: pointer; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+.card .lab { font-size: 0.8125rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.card .tag { width: 22px; height: 22px; border-radius: 6px; background: var(--c); color: var(--on-c); display: inline-grid; place-items: center; font: 800 0.8125rem var(--display); letter-spacing: 0; }
+.card .big { font: 800 clamp(1.5rem, 6vw, 2.1rem)/1.2 var(--display); text-wrap: balance; overflow-wrap: anywhere; }
+.card .small { color: var(--muted); font-size: 1rem; }
+.card .front-q { color: var(--muted); font-size: 1.0625rem; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.card .flip-hint { color: var(--muted); font-size: 0.875rem; }
+.card .ex { font-size: 1.0625rem; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.done { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 28px 20px; display: grid; gap: 12px; justify-items: start; }
+.done .big { margin: 0; font: 800 2rem var(--display); }
+.done p { margin: 0; }
+
+/* Practice */
+.prow { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 14px 0; border-top: 1px solid var(--line); }
+.prow:last-child { border-bottom: 1px solid var(--line); }
+.pill { width: 28px; height: 28px; border-radius: 8px; background: var(--c); color: var(--on-c); display: grid; place-items: center; font: 800 0.9375rem var(--display); margin-top: 2px; }
+.ptext { font-size: 1.1875rem; font-weight: 700; line-height: 1.55; overflow-wrap: anywhere; }
+.prow .full { display: none; }
+.prow.revealed .full { display: inline; }
+.prow.revealed .masked { display: none; }
+.pact { display: flex; gap: 6px; align-items: center; }
+.icon-btn { border: 1px solid var(--line-strong); background: transparent; color: var(--ink); border-radius: 999px; min-width: 44px; min-height: 44px; padding: 0 12px; cursor: pointer; display: inline-grid; place-items: center; font-size: 0.9375rem; }
+.gap { border: 0; border-bottom: 2px solid var(--line-strong); background: var(--gap); color: inherit; font: inherit; padding: 0 3px; border-radius: 4px; cursor: pointer; }
+.gap .gi { opacity: 0; }
+.gap.open { background: transparent; border-bottom-color: transparent; }
+.gap.open .gi { opacity: 1; }
+.abbr { letter-spacing: 0.06em; }
+.cues { font-weight: 700; color: var(--ink); }
+.cues i { font-style: normal; color: var(--muted); padding: 0 4px; }
+
+@media (max-width: 420px) {
+  .part-head { grid-template-columns: auto minmax(0, 1fr); }
+  .part-head .btn { grid-column: 1 / -1; }
+  .prow { grid-template-columns: auto minmax(0, 1fr); }
+  .pact { grid-column: 2; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .line, .gap, .card { transition: background-color 0.15s; }
+}
+</style>
+
+<main class="wrap">
+  <header>
+    <p class="eyebrow">Jouw introductie · 12 zinnen · ca. 1 minuut · A2</p>
+    <h1>Waarom is cyberpesten zo ernstig?</h1>
+    <p class="lede">Your speech to introduce your colleague. Dutch first, English under it. Tap any line to hear it.</p>
+  </header>
+
+  <section class="method" aria-label="The pen method">
+    <p>In "sell me a pen", you never list what the pen does. You make people feel the need first, then you hand over the answer. Here the answer is your colleague's talk. Remember one word: <strong>PEN</strong>.</p>
+    <div class="pen">
+      <div class="p"><b>P</b><strong>Prikkel</strong><span>Hook. Ask. Hand up.</span></div>
+      <div class="e"><b>E</b><strong>Erg</strong><span>Show it is serious. Fingers.</span></div>
+      <div class="n"><b>N</b><strong>Nu</strong><span>Hand over. Open hand.</span></div>
+    </div>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" id="t-speech" aria-selected="true" aria-controls="tab-speech">Speech</button>
+    <button role="tab" id="t-cards" aria-selected="false" aria-controls="tab-cards">Cards</button>
+    <button role="tab" id="t-practice" aria-selected="false" aria-controls="tab-practice">Practice</button>
+  </nav>
+
+  <p class="note" id="voicenote" hidden></p>
+
+  <!-- SPEECH -->
+  <section id="tab-speech" role="tabpanel" aria-labelledby="t-speech">
+    <div class="tools">
+      <button class="btn" id="playall" type="button"></button>
+      <div class="seg" role="group" aria-label="Language shown" id="langseg">
+        <button type="button" data-l="both" aria-pressed="true">NL + EN</button>
+        <button type="button" data-l="nl" aria-pressed="false">NL</button>
+        <button type="button" data-l="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+    <div class="tools">
+      <button class="tog" id="slow" type="button" aria-pressed="true">Slow voice</button>
+      <button class="tog" id="repeat" type="button" aria-pressed="false">Pause to repeat</button>
+    </div>
+    <div id="parts" data-lang="both"></div>
+  </section>
+
+  <!-- CARDS -->
+  <section id="tab-cards" role="tabpanel" aria-labelledby="t-cards" hidden>
+    <div class="tools">
+      <div class="seg" role="group" aria-label="Deck" id="deckseg">
+        <button type="button" data-d="words" aria-pressed="true">Woorden</button>
+        <button type="button" data-d="lines" aria-pressed="false">Zinnen</button>
+      </div>
+      <div class="seg" role="group" aria-label="Direction" id="dirseg">
+        <button type="button" data-r="en2nl" aria-pressed="true">EN → NL</button>
+        <button type="button" data-r="nl2en" aria-pressed="false">NL → EN</button>
+      </div>
+      <button class="btn ghost small" id="shuffle" type="button">Mix</button>
+    </div>
+    <div class="progress"><div class="bar"><i id="pbar"></i></div><span id="ptext"></span></div>
+    <div id="cardwrap"></div>
+    <div class="actions" id="cardactions">
+      <button class="btn ghost" id="listen" type="button">Luister</button>
+      <button class="btn ghost" id="again" type="button" hidden>Nog eens</button>
+      <button class="btn" id="know" type="button" hidden>Ken ik</button>
+    </div>
+  </section>
+
+  <!-- PRACTICE -->
+  <section id="tab-practice" role="tabpanel" aria-labelledby="t-practice" hidden>
+    <div class="tools">
+      <div class="seg" role="group" aria-label="Part" id="partseg">
+        <button type="button" data-s="ALL" aria-pressed="true">Alles</button>
+        <button type="button" data-s="P" aria-pressed="false">P</button>
+        <button type="button" data-s="E" aria-pressed="false">E</button>
+        <button type="button" data-s="N" aria-pressed="false">N</button>
+      </div>
+    </div>
+    <div class="tools">
+      <div class="seg" role="group" aria-label="Level" id="lvlseg">
+        <button type="button" data-v="1" aria-pressed="false">1 Lees</button>
+        <button type="button" data-v="2" aria-pressed="true">2 Gaten</button>
+        <button type="button" data-v="3" aria-pressed="false">3 Letters</button>
+        <button type="button" data-v="4" aria-pressed="false">4 Cues</button>
+      </div>
+    </div>
+    <p class="hint" id="lvlhint"></p>
+    <div class="tools">
+      <button class="btn ghost small" id="showall" type="button">Show all</button>
+      <button class="btn ghost small" id="hideall" type="button">Hide all</button>
+    </div>
+    <div id="plist"></div>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- Content ---------- */
+  var SECTIONS = [
+    { id: "P", cls: "p", name: "Prikkel", en: "Hook", cue: "Palm up, then raise your own hand. Wait two seconds after the question.",
+      lines: [
+        { nl: "Even een vraag. Wie heeft een telefoon bij zich?", en: "One quick question. Who has a phone on them?", kw: ["vraag", "telefoon"] },
+        { nl: "Steek je hand op als je ooit een gemeen bericht kreeg.", en: "Raise your hand if you ever got a mean message.", kw: ["hand op", "gemeen bericht"] },
+        { nl: "Kijk rond. Dat zijn veel handen.", en: "Look around. That is a lot of hands.", kw: ["veel handen"] }
+      ] },
+    { id: "E", cls: "e", name: "Erg", en: "Show it is serious", cue: "Show 3 fingers for 30 percent, then 1 finger for 1 in 10. Slow down on the numbers.",
+      lines: [
+        { nl: "Dit heet cyberpesten: pesten via internet, sociale media of je gsm.", en: "This is called cyberbullying: bullying through the internet, social media or your phone.", kw: ["cyberpesten", "internet"] },
+        { nl: "Bijvoorbeeld gemene berichten, iemand uitsluiten uit een chatgroep, of een nepaccount maken.", en: "For example mean messages, leaving someone out of a chat group, or making a fake account.", kw: ["gemene berichten", "uitsluiten", "nepaccount"] },
+        { nl: "Het kan thuis, op school en op elk moment. Je kunt nergens rustig zijn.", en: "It can happen at home, at school and at any moment. You can't relax anywhere.", kw: ["thuis", "school", "elk moment"] },
+        { nl: "30 procent van de jongeren zegt: iemand probeerde mij online te kwetsen.", en: "30 percent of young people say: someone tried to hurt me online.", kw: ["30 procent", "kwetsen"] },
+        { nl: "Bij 1 op 10 gebeurt dit minstens elke maand.", en: "For 1 in 10 this happens at least every month.", kw: ["1 op 10", "elke maand"] },
+        { nl: "Ook wegkijken speelt een rol.", en: "Looking away also plays a role.", kw: ["wegkijken"] }
+      ] },
+    { id: "N", cls: "n", name: "Nu", en: "Hand over", cue: "Open hand toward your colleague. Smile and step aside.",
+      lines: [
+        { nl: "Waarom is dit zo ernstig? Mijn collega legt het nu uit.", en: "Why is this so serious? My colleague will explain it now.", kw: ["zo ernstig", "collega"] },
+        { nl: "Luister goed. Misschien help je zo een vriend.", en: "Listen carefully. Maybe this way you can help a friend.", kw: ["luister", "vriend"] },
+        { nl: "Een applaus voor mijn collega!", en: "A round of applause for my colleague!", kw: ["applaus"] }
+      ] }
+  ];
+
+  var WORDS = [
+    { nl: "cyberpesten", en: "cyberbullying", ex: "Cyberpesten gebeurt online.", exen: "Cyberbullying happens online." },
+    { nl: "pesten", en: "to bully", ex: "Pesten doet pijn.", exen: "Bullying hurts." },
+    { nl: "een gemeen bericht", en: "a mean message", ex: "Ik kreeg een gemeen bericht.", exen: "I got a mean message." },
+    { nl: "iemand uitsluiten", en: "to leave someone out", ex: "Ze sluiten hem uit van de chatgroep.", exen: "They leave him out of the chat group." },
+    { nl: "de chatgroep", en: "the chat group", ex: "Wij hebben een chatgroep.", exen: "We have a chat group." },
+    { nl: "een nepaccount", en: "a fake account", ex: "Hij maakt een nepaccount.", exen: "He makes a fake account." },
+    { nl: "verspreiden", en: "to spread", ex: "Ze verspreiden foto's.", exen: "They spread photos." },
+    { nl: "kwetsen", en: "to hurt (feelings)", ex: "Woorden kunnen kwetsen.", exen: "Words can hurt." },
+    { nl: "ernstig", en: "serious", ex: "Dit is ernstig.", exen: "This is serious." },
+    { nl: "de jongeren", en: "young people", ex: "Veel jongeren hebben een telefoon.", exen: "Many young people have a phone." },
+    { nl: "elke maand", en: "every month", ex: "Het gebeurt elke maand.", exen: "It happens every month." },
+    { nl: "minstens", en: "at least", ex: "Minstens één keer.", exen: "At least once." },
+    { nl: "wegkijken", en: "to look away", ex: "Niet wegkijken!", exen: "Don't look away!" },
+    { nl: "op elk moment", en: "at any moment", ex: "Het kan op elk moment.", exen: "It can happen at any moment." },
+    { nl: "sociale media", en: "social media", ex: "Ik zit veel op sociale media.", exen: "I am on social media a lot." },
+    { nl: "de gsm", en: "the mobile phone", ex: "Mijn gsm ligt op tafel.", exen: "My phone is on the table." }
+  ];
+
+  var LINES = [];
+  SECTIONS.forEach(function (s) {
+    s.lines.forEach(function (l) { l.sec = s.id; l.cls = s.cls; LINES.push(l); });
+  });
+  var CLS = { P: "p", E: "e", N: "n" };
+
+  /* ---------- Helpers ---------- */
+  function $(sel) { return document.querySelector(sel); }
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+  var SPK = '<svg class="spk" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  var PLAY = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>';
+  var STOP = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2" fill="currentColor"/></svg>';
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- Audio ---------- */
+  var synth = window.speechSynthesis || null;
+  var voice = null, runId = 0, isPlaying = false;
+  var slow = true, repeat = false;
+  var voicenote = $("#voicenote");
+
+  function pickVoice() {
+    if (!synth) return;
+    var vs = synth.getVoices() || [];
+    voice = null;
+    for (var i = 0; i < vs.length; i++) { if (/^nl[-_]BE/i.test(vs[i].lang)) { voice = vs[i]; break; } }
+    if (!voice) { for (var j = 0; j < vs.length; j++) { if (/^nl/i.test(vs[j].lang)) { voice = vs[j]; break; } } }
+    if (vs.length && !voice) {
+      voicenote.textContent = "No Dutch voice found on this device, so the audio may sound wrong. Add a Dutch voice in your phone's text-to-speech or accessibility settings.";
+      voicenote.hidden = false;
+    } else if (voice) {
+      voicenote.hidden = true;
+    }
+  }
+  if (!synth) {
+    voicenote.textContent = "Audio is not supported in this browser. The text and cards still work.";
+    voicenote.hidden = false;
+  } else {
+    pickVoice();
+    if (synth.addEventListener) synth.addEventListener("voiceschanged", pickVoice);
+    else synth.onvoiceschanged = pickVoice;
+    setTimeout(pickVoice, 1200);
+  }
+
+  function spoken(t) {
+    return t.replace(/\b1 op 10\b/g, "één op tien")
+            .replace(/\b30 procent\b/g, "dertig procent")
+            .replace(/\bgsm\b/gi, "gee es em")
+            .replace(/nepaccount/g, "nep account");
+  }
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function speakP(text) {
+    return new Promise(function (res) {
+      if (!synth) { res(); return; }
+      var u = new SpeechSynthesisUtterance(spoken(text));
+      u.lang = voice ? voice.lang : "nl-BE";
+      if (voice) u.voice = voice;
+      u.rate = slow ? 0.72 : 0.92;
+      u.onend = res;
+      u.onerror = res;
+      synth.speak(u);
+    });
+  }
+
+  var playBtn = $("#playall");
+  function setPlayLabel() {
+    playBtn.innerHTML = isPlaying ? STOP + " Stop" : PLAY + " Play all";
+  }
+  function clearNow() {
+    var n = document.querySelectorAll(".line.now");
+    for (var i = 0; i < n.length; i++) n[i].classList.remove("now");
+  }
+  function stopAll() {
+    runId++;
+    if (synth) synth.cancel();
+    isPlaying = false;
+    clearNow();
+    setPlayLabel();
+  }
+
+  async function playLines(list, opts) {
+    opts = opts || {};
+    if (!synth) return;
+    var id = ++runId;
+    synth.cancel();
+    clearNow();
+    await wait(80);
+    if (id !== runId) return;
+    isPlaying = !opts.quiet;
+    setPlayLabel();
+    for (var i = 0; i < list.length; i++) {
+      var item = list[i];
+      if (id !== runId) return;
+      if (item.el) {
+        clearNow();
+        item.el.classList.add("now");
+        if (!opts.single) item.el.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+      }
+      await speakP(item.nl);
+      if (id !== runId) return;
+      if (i < list.length - 1) {
+        var words = item.nl.split(" ").length;
+        var gap = repeat ? 800 + words * 480 : 380;
+        var next = list[i + 1];
+        if (next.sec !== item.sec) gap += 700;
+        await wait(gap);
+      }
+    }
+    if (id === runId) { isPlaying = false; clearNow(); setPlayLabel(); }
+  }
+  function playOne(text) {
+    if (!synth) return;
+    var id = ++runId;
+    synth.cancel();
+    isPlaying = false;
+    setPlayLabel();
+    clearNow();
+    wait(80).then(function () { if (id === runId) speakP(text); });
+  }
+
+  /* ---------- Speech tab ---------- */
+  var parts = $("#parts");
+  SECTIONS.forEach(function (s) {
+    var art = el("article", "part " + s.cls);
+    art.innerHTML =
+      '<div class="part-head"><span class="letter" aria-hidden="true">' + s.id + '</span>' +
+      '<div><h2>' + s.name + '</h2><p class="sub">' + s.en + '</p></div>' +
+      '<button class="btn ghost small" type="button" data-part="' + s.id + '">Play part</button></div>' +
+      '<p class="cue"><strong>On stage:</strong> ' + s.cue + '</p>';
+    s.lines.forEach(function (l) {
+      var b = el("button", "line");
+      b.type = "button";
+      b.innerHTML = '<span class="nl">' + l.nl + '</span><span class="en">' + l.en + '</span>' + SPK;
+      l.el = b;
+      b.addEventListener("click", function () { playLines([l], { single: true }); });
+      art.appendChild(b);
+    });
+    parts.appendChild(art);
+  });
+  parts.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-part]");
+    if (!b) return;
+    var id = b.getAttribute("data-part");
+    playLines(LINES.filter(function (l) { return l.sec === id; }));
+  });
+
+  playBtn.addEventListener("click", function () {
+    if (isPlaying) stopAll(); else playLines(LINES);
+  });
+  setPlayLabel();
+
+  function pressGroup(group, attr, cb) {
+    group.addEventListener("click", function (e) {
+      var b = e.target.closest("button");
+      if (!b) return;
+      var btns = group.querySelectorAll("button");
+      for (var i = 0; i < btns.length; i++) btns[i].setAttribute("aria-pressed", btns[i] === b ? "true" : "false");
+      cb(b.getAttribute(attr));
+    });
+  }
+  pressGroup($("#langseg"), "data-l", function (v) { parts.setAttribute("data-lang", v); });
+  $("#slow").addEventListener("click", function (e) {
+    slow = !slow; e.currentTarget.setAttribute("aria-pressed", String(slow));
+  });
+  $("#repeat").addEventListener("click", function (e) {
+    repeat = !repeat; e.currentTarget.setAttribute("aria-pressed", String(repeat));
+  });
+
+  /* ---------- Cards tab ---------- */
+  var decks = { words: WORDS, lines: LINES };
+  var deck = "words", dir = "en2nl", queue = [], flipped = false;
+  var known = { words: [], lines: [] };
+  try {
+    var saved = JSON.parse(localStorage.getItem("cps-known") || "null");
+    if (saved && saved.words && saved.lines) known = saved;
+  } catch (err) { /* storage unavailable: progress lives only in this visit */ }
+  function save() { try { localStorage.setItem("cps-known", JSON.stringify(known)); } catch (err) {} }
+
+  function buildQueue() {
+    queue = [];
+    decks[deck].forEach(function (_, i) { if (known[deck].indexOf(i) === -1) queue.push(i); });
+    flipped = false;
+  }
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+  }
+
+  var cardwrap = $("#cardwrap"), pbar = $("#pbar"), ptext = $("#ptext");
+  var btnAgain = $("#again"), btnKnow = $("#know"), btnListen = $("#listen");
+
+  function renderCards() {
+    var items = decks[deck], total = items.length, done = known[deck].length;
+    pbar.style.width = (done / total * 100) + "%";
+    ptext.textContent = done + " / " + total + " known";
+    cardwrap.innerHTML = "";
+    if (!queue.length) {
+      var d = el("div", "done");
+      d.innerHTML = '<p class="big">Klaar!</p><p>You know all ' + total + ' cards in this deck.</p>';
+      var rb = el("button", "btn", "Start again");
+      rb.type = "button";
+      rb.addEventListener("click", function () { known[deck] = []; save(); buildQueue(); renderCards(); });
+      d.appendChild(rb);
+      cardwrap.appendChild(d);
+      btnAgain.hidden = true; btnKnow.hidden = true; btnListen.hidden = true;
+      return;
+    }
+    btnListen.hidden = false;
+    var it = items[queue[0]];
+    var isLine = deck === "lines";
+    var tag = isLine ? '<span class="tag">' + it.sec + '</span>' : "";
+    var card = el("button", "card" + (isLine ? " " + CLS[it.sec] : ""));
+    card.type = "button";
+    var frontLab = dir === "en2nl" ? "English" : "Nederlands";
+    var backLab = dir === "en2nl" ? "Nederlands" : "English";
+    var frontTxt = dir === "en2nl" ? it.en : it.nl;
+    var backTxt = dir === "en2nl" ? it.nl : it.en;
+    var html;
+    if (!flipped) {
+      html = '<span class="lab">' + tag + frontLab + '</span><span class="big">' + frontTxt + '</span><span class="flip-hint">Tap to flip</span>';
+    } else {
+      html = '<span class="front-q">' + frontTxt + '</span><span class="lab">' + tag + backLab + '</span><span class="big">' + backTxt + '</span>';
+      if (!isLine) {
+        html += '<span class="ex">' + (dir === "en2nl" ? it.ex : it.exen) + '</span><span class="small">' + (dir === "en2nl" ? it.exen : it.ex) + '</span>';
+      }
+    }
+    card.innerHTML = html;
+    card.addEventListener("click", function () { flipped = !flipped; renderCards(); });
+    cardwrap.appendChild(card);
+    btnAgain.hidden = !flipped;
+    btnKnow.hidden = !flipped;
+  }
+
+  btnListen.addEventListener("click", function () {
+    if (!queue.length) return;
+    playOne(decks[deck][queue[0]].nl);
+  });
+  btnAgain.addEventListener("click", function () {
+    queue.push(queue.shift()); flipped = false; renderCards();
+  });
+  btnKnow.addEventListener("click", function () {
+    var i = queue.shift();
+    if (known[deck].indexOf(i) === -1) known[deck].push(i);
+    save(); flipped = false; renderCards();
+  });
+  $("#shuffle").addEventListener("click", function () { shuffle(queue); flipped = false; renderCards(); });
+  pressGroup($("#deckseg"), "data-d", function (v) { deck = v; buildQueue(); renderCards(); });
+  pressGroup($("#dirseg"), "data-r", function (v) { dir = v; flipped = false; renderCards(); });
+  buildQueue();
+  renderCards();
+
+  /* ---------- Practice tab ---------- */
+  var pPart = "ALL", pLevel = 2;
+  var plist = $("#plist");
+  var HINTS = {
+    1: "Read each line out loud twice. Then go to level 2.",
+    2: "Some words are hidden. Say the whole line, then tap a gap to check.",
+    3: "Only the first letters. Say the line from the letters.",
+    4: "Only the key words. This is what you keep in your head on stage."
+  };
+
+  function tokenize(s) {
+    return s.split(" ").map(function (tok) {
+      var m = tok.match(/^([^\p{L}\p{N}]*)(.*?)([^\p{L}\p{N}]*)$/u);
+      return { pre: m[1], core: m[2], post: m[3] };
+    });
+  }
+  function maskHTML(line, idx) {
+    var toks = tokenize(line.nl);
+    if (pLevel === 2) {
+      return toks.map(function (t, i) {
+        if (t.core.length >= 3 && (i + idx) % 3 === 0) {
+          return t.pre + '<button type="button" class="gap" style="min-width:' + t.core.length + 'ch"><span class="gi">' + t.core + '</span></button>' + t.post;
+        }
+        return t.pre + t.core + t.post;
+      }).join(" ");
+    }
+    if (pLevel === 3) {
+      return '<span class="abbr">' + toks.map(function (t) {
+        var c = t.core;
+        return t.pre + (c.length ? c.charAt(0) + new Array(c.length).join("·") : "") + t.post;
+      }).join(" ") + '</span>';
+    }
+    return '<span class="cues">' + line.kw.join('<i>·</i>') + '</span>';
+  }
+
+  function renderPractice() {
+    plist.innerHTML = "";
+    $("#lvlhint").textContent = HINTS[pLevel];
+    var items = LINES.filter(function (l) { return pPart === "ALL" || l.sec === pPart; });
+    items.forEach(function (l, idx) {
+      var row = el("div", "prow " + CLS[l.sec] + (pLevel === 1 ? " revealed" : ""));
+      var pill = el("span", "pill", l.sec);
+      pill.setAttribute("aria-hidden", "true");
+      var txt = el("div", "ptext");
+      var full = el("span", "full", l.nl);
+      txt.appendChild(full);
+      if (pLevel > 1) {
+        var masked = el("span", "masked", maskHTML(l, idx));
+        txt.insertBefore(masked, full);
+      }
+      var act = el("div", "pact");
+      if (pLevel > 1) {
+        var show = el("button", "icon-btn", "Show");
+        show.type = "button";
+        show.addEventListener("click", function () {
+          var on = row.classList.toggle("revealed");
+          show.textContent = on ? "Hide" : "Show";
+        });
+        act.appendChild(show);
+      }
+      var sp = el("button", "icon-btn", SPK);
+      sp.type = "button";
+      sp.setAttribute("aria-label", "Play this line");
+      sp.addEventListener("click", function () { playOne(l.nl); });
+      act.appendChild(sp);
+      row.appendChild(pill); row.appendChild(txt); row.appendChild(act);
+      plist.appendChild(row);
+    });
+  }
+  plist.addEventListener("click", function (e) {
+    var g = e.target.closest(".gap");
+    if (g) g.classList.toggle("open");
+  });
+  function setAll(on) {
+    var rows = plist.querySelectorAll(".prow");
+    for (var i = 0; i < rows.length; i++) {
+      if (pLevel === 1) continue;
+      rows[i].classList.toggle("revealed", on);
+      var b = rows[i].querySelector(".icon-btn");
+      if (b) b.textContent = on ? "Hide" : "Show";
+    }
+  }
+  $("#showall").addEventListener("click", function () { setAll(true); });
+  $("#hideall").addEventListener("click", function () { renderPractice(); });
+  pressGroup($("#partseg"), "data-s", function (v) { pPart = v; renderPractice(); });
+  pressGroup($("#lvlseg"), "data-v", function (v) { pLevel = parseInt(v, 10); renderPractice(); });
+  renderPractice();
+
+  /* ---------- Tabs ---------- */
+  var TABS = ["speech", "cards", "practice"];
+  TABS.forEach(function (name) {
+    $("#t-" + name).addEventListener("click", function () {
+      stopAll();
+      TABS.forEach(function (n) {
+        var on = n === name;
+        $("#t-" + n).setAttribute("aria-selected", String(on));
+        $("#tab-" + n).hidden = !on;
+      });
+      window.scrollTo(0, 0);
+    });
+  });
+})();
+</script>
+
+</body></html>
